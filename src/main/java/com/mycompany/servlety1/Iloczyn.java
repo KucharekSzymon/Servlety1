@@ -7,10 +7,11 @@ package com.mycompany.servlety1;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
 /**
  *
@@ -31,14 +32,38 @@ public class Iloczyn extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+            String in = request.getParameter("in");
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Iloczyn</title>");            
+            out.println("<title>Servlet Kostka</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet Iloczyn at " + request.getContextPath() + "</h1>");
+
+            out.println("<form method='post'>");
+            out.println("<input name='in' value='1' type='number'>");
+            out.println("<input type='submit' value='Submit'>");
+            Cookie OstatniaWizyta = null;
+            for(Cookie c : request.getCookies())
+                if(c.getName().equals("bylemtu"))
+                { OstatniaWizyta=c; break; }
+            if(OstatniaWizyta!= null){
+                Integer wynik = Integer.parseInt(in) * Integer.parseInt(OstatniaWizyta.getValue());
+                OstatniaWizyta=new Cookie("bylemtu", wynik.toString());
+                response.addCookie(OstatniaWizyta);
+                out.println("Wynik: "+ OstatniaWizyta.getValue());
+            }
+            else{
+                OstatniaWizyta=new Cookie("bylemtu", "1");
+                response.addCookie(OstatniaWizyta);
+            }
+
+
+
+
+            out.println("</form>");
+            out.println("<br><a href='/Servlety1/'>&#8592 Strona główna</a>");
             out.println("</body>");
             out.println("</html>");
         }

@@ -8,6 +8,8 @@ package com.mycompany.servlety1;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.Random;
+import java.util.regex.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
@@ -28,6 +30,8 @@ public class Kostka extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Random rand = new Random(); //instance of random class
+        String in = request.getParameter("in");
         int a = 0;
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
@@ -40,18 +44,39 @@ public class Kostka extends HttpServlet {
             out.println("<title>Servlet Kostka</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<input type='number'>");
+
             out.println("<form method='post'>");
-            out.println("<input type='submit' name='in' value='Submit'>");
-            HttpSession sesja= request.getSession();
-            if(sesja.getAttribute("ile")==null)
-                sesja.setAttribute("ile", 1);
-            else
-            {
-                int licznik=Integer.parseInt(sesja.getAttribute("ile").toString());
-                sesja.setAttribute("ile", licznik+1);
+            out.println("<input name='in' value='1' type='number'>");
+            out.println("<input type='submit' value='Submit'>");
+            Pattern pp = Pattern.compile("^\\d");
+            Matcher mp = pp.matcher(in);
+            if(mp.matches()){
+                int randzik = rand.nextInt(7)+1;
+                out.println("<p>Inupt data: "+in);
+                HttpSession sesja= request.getSession();
+                if(sesja.getAttribute("ile")==null)
+                    sesja.setAttribute("ile", 10);
+                else
+                {
+                    int licznik=Integer.parseInt(sesja.getAttribute("ile").toString());
+                    if (randzik == Integer.parseInt(in))
+                        licznik++;
+                    else
+                        licznik--;
+                    if(licznik<0){
+                        out.println("<script>alert('You lost!');</script>");
+                        licznik = 10;
+
+                    }
+                    sesja.setAttribute("ile", licznik);
+                    a = Integer.parseInt(sesja.getAttribute("ile").toString());
+                }
+                out.println("<p>Wylosowana: " + randzik + "</p>");
+                out.println("<p name='out'>" + a + "</p>");
             }
-            out.println(sesja.getAttribute("ile").toString());
+
+            else    out.println("<p style='color:red'>Incorrect number!");
+
             out.println("</form>");
             out.println("<br><a href='/Servlety1/'>&#8592 Strona główna</a>");
             out.println("</body>");
